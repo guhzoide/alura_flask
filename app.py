@@ -1,15 +1,14 @@
 import os
-from models.models import *
+from models import *
+from dotenv import load_dotenv
+from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, render_template, request, redirect, session, flash, url_for
-
-
-app = Flask(__name__)
-app.secret_key = 'jogoteca'
 
 
 @app.route('/')
 def index():
-    return render_template('lista.html', titulo='Jogos', jogos=lista, secao=session['usuario_logado'])
+    lista = Jogos.query.order_by(Jogos.id)
+    return render_template('lista.html', titulo='Jogos', jogos=lista)
 
 @app.route('/novo')
 def novo():
