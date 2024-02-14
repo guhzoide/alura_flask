@@ -1,28 +1,55 @@
 import os
+import psycopg2
 from models import *
+from flask import Flask
 from dotenv import load_dotenv
-from flask_sqlalchemy import SQLAlchemy
-from flask import Flask, render_template, request, redirect, session, flash, url_for
 
 load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DADOS_DB")
-db = SQLAlchemy(app)
+host = os.getenv('host')
+user = os.getenv('user')
+password = os.getenv('password')
+database = os.getenv('database')
+port = os.getenv('port')
 
-class Jogos(db.Model):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    nome = db.Column(db.String(50), nullable=False)
-    categoria = db.Column(db.String(40), nullable=False)
-    console = db.Column(db.String(20), nullable=False)
+class Jogos():
+    def busca_jogos():
+        lista_jogos = []
+        con = psycopg2.connect(host=host, user=user, password=password, database=database, port=port)
+        cursor = con.cursor()
+        cursor.execute(f"SELECT nome, categoria, console FROM jogos;")
+        dados = cursor.fetchall()
+        cursor.close()
+        con.close()
+        for line in dados:
+            lista_jogos.append(line)
 
-    def __repr__(self):
-        return '<Name %r>' %self.name
+        return lista_jogos
     
-class Usuarios(db.Model):
-    nickname = db.Column(db.String(8), primary_key=True)
-    nome = db.Column(db.String(20), nullable=False)
-    senha = db.Column(db.String(100), nullable=False)
+    def inserir_jogos(nome, categoria, console):
+        try:
+            con = psycopg2.connect(host=host, user=user, password=password, database=database, port=port)
+            cursor = con.cursor()
+            cursor.execute(f"INSERT INTO jogos (nome, categoria, console) VALUES ('{nome}', '{categoria}', '{console}');")
+            con.commit()
+            cursor.close()
+            con.close()
+            return 'Jogo adcionado'
+        except Exception as error:
+            return error
 
-    def __repr__(self):
-        return '<Name %r>' %self.name
+    
+class Usuarios():
+    def usuarios(nickname,senha):
+        con = psycopg2.connect(host=host, user=user, password=password, database=database, port=port)
+        cursor = con.cursor()
+        cursor.execute(f"SELECT senha FROM usuarios WHERE nickname='{nickname}';")
+        senha_banco = cursor.fetchall()
+        cursor.close()
+        con.close()
+
+
+        for teste in senha_banco:
+            if senha in teste:
+                return True

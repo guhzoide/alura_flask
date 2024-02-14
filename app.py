@@ -1,13 +1,10 @@
-import os
 from models import *
-from dotenv import load_dotenv
-from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, render_template, request, redirect, session, flash, url_for
 
 
 @app.route('/')
 def index():
-    lista = Jogos.query.order_by(Jogos.id)
+    lista = Jogos.busca_jogos()
     return render_template('lista.html', titulo='Jogos', jogos=lista)
 
 @app.route('/novo')
@@ -22,8 +19,8 @@ def criar():
     categoria = request.form['categoria']
     console = request.form['console']
 
-    jogo = Jogo(nome, categoria, console)
-    lista.append(jogo)
+    result = Jogos.inserir_jogos(nome, categoria, console)
+    flash(result)
     return redirect(url_for('index'))
 
 @app.route('/login')
@@ -33,15 +30,15 @@ def login():
 
 @app.route('/autenticar', methods=['POST',])
 def autenticar():
-    usuario = request.form['usuario']
+    nickname = request.form['usuario']
     senha = request.form['senha']
     proxima_pagina = request.form['proxima']
+    result = Usuarios.usuarios(nickname,senha)
 
-    if usuario in usuarios:
-        if senha == usuarios[usuario].senha:
-            session['usuario_logado'] = usuario.upper()
-            flash(f"Bem vindo, {usuario}!")
-            return redirect(proxima_pagina)
+    if result:
+        session['usuario_logado'] = nickname
+        flash(f"Bem vindo, {nickname}!")
+        return redirect(proxima_pagina)
 
     flash("Login inválido")
     return redirect(proxima_pagina)
