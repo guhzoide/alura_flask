@@ -28,9 +28,14 @@ class Jogos():
         return lista_jogos
     
     def inserir_jogos(nome, categoria, console):
+        con = psycopg2.connect(host=host, user=user, password=password, database=database, port=port)
+        cursor = con.cursor()
+        cursor.execute(f"SELECT * FROM jogos WHERE nome='{nome}';")
+        dados = cursor.fetchall()
+
+        if dados:
+            return 'Já existe um jogo com esse nome'
         try:
-            con = psycopg2.connect(host=host, user=user, password=password, database=database, port=port)
-            cursor = con.cursor()
             cursor.execute(f"INSERT INTO jogos (nome, categoria, console) VALUES ('{nome}', '{categoria}', '{console}');")
             con.commit()
             cursor.close()
