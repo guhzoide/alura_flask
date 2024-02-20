@@ -1,60 +1,19 @@
-import os
-import psycopg2
-from models import *
-from flask import Flask
-from dotenv import load_dotenv
+from app import db
 
-load_dotenv()
-app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY")
-host = os.getenv('host')
-user = os.getenv('user')
-password = os.getenv('password')
-database = os.getenv('database')
-port = os.getenv('port')
+class Jogos(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    nome = db.Column(db.String(50), nullable=False)
+    categoria = db.Column(db.String(40), nullable=False)
+    console = db.Column(db.String(20), nullable=False)
 
-class Jogos():
-    def busca_jogos():
-        lista_jogos = []
-        con = psycopg2.connect(host=host, user=user, password=password, database=database, port=port)
-        cursor = con.cursor()
-        cursor.execute(f"SELECT nome, categoria, console FROM jogos;")
-        dados = cursor.fetchall()
-        cursor.close()
-        con.close()
-        for line in dados:
-            lista_jogos.append(line)
-
-        return lista_jogos
-    
-    def inserir_jogos(nome, categoria, console):
-        con = psycopg2.connect(host=host, user=user, password=password, database=database, port=port)
-        cursor = con.cursor()
-        cursor.execute(f"SELECT * FROM jogos WHERE nome='{nome}';")
-        dados = cursor.fetchall()
-
-        if dados:
-            return 'Já existe um jogo com esse nome'
-        try:
-            cursor.execute(f"INSERT INTO jogos (nome, categoria, console) VALUES ('{nome}', '{categoria}', '{console}');")
-            con.commit()
-            cursor.close()
-            con.close()
-            return 'Jogo adcionado'
-        except Exception as error:
-            return error
-
-    
-class Usuarios():
-    def usuarios(nickname,senha):
-        con = psycopg2.connect(host=host, user=user, password=password, database=database, port=port)
-        cursor = con.cursor()
-        cursor.execute(f"SELECT senha FROM usuarios WHERE nickname='{nickname}';")
-        senha_banco = cursor.fetchall()
-        cursor.close()
-        con.close()
+    def __repr__(self):
+        return f"<Name {self.name}>"
 
 
-        for teste in senha_banco:
-            if senha in teste:
-                return True
+class Usuarios(db.Model):
+    nickname = db.Column(db.String(8), nullable=False, primary_key=True)
+    nome = db.Column(db.String(20), nullable=False)
+    senha = db.Column(db.String(100), nullable=False)
+
+    def __repr__(self):
+        return f"<Name {self.nome}>"
