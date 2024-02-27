@@ -1,0 +1,16 @@
+.file-input {
+    color: transparent;
+    display: none;
+}
+
+.fileContainer:hover {
+    cursor: pointer;
+}
+
+.img-thumbnail {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    justify-content: center;
+    width: 250px;
+}
