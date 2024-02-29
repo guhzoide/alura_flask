@@ -1,7 +1,8 @@
 import time
 from app import app, db
-from helpers import FormularioJogo, Help, FormularioUsuario
-from models import Jogos, Usuarios
+from views_user import *
+from models import Jogos
+from helpers import FormularioJogo, Help
 from flask import render_template, request, redirect, session, flash, url_for, send_from_directory
 
 @app.route('/')
@@ -95,39 +96,6 @@ def deletar(id):
     db.session.commit()
 
     flash("Jogo deletado com sucesso!")
-    return redirect(url_for('index'))
-
-@app.route('/login')
-def login():
-    proxima = request.args.get('proxima')
-    form = FormularioUsuario()
-    return render_template('login.html', proxima=proxima, form=form)
-
-@app.route('/autenticar', methods=['POST',])
-def autenticar():
-    form = FormularioUsuario(request.form)
-
-    nickname = form.nickname.data
-    senha = form.senha.data
-    proxima_pagina = request.form['proxima']
-    usuario = Usuarios.query.filter_by(nickname=nickname).first()
-    if usuario:
-        if senha == usuario.senha:
-            session['usuario_logado'] = nickname
-            flash(f'Bem-vindo(a) {nickname}!')
-            return redirect(proxima_pagina)
-        
-        else:
-            flash("Login inválido")
-            return redirect(proxima_pagina)
-
-    flash('Algo deu errado! Verifique se o usuário e senha foram digitados corretamento')
-    return redirect(url_for('index'))
-
-@app.route('/logout')
-def logout():
-    session['usuario_logado'] = None
-    flash('Logout efetuado com sucesso!')
     return redirect(url_for('index'))
 
 app.run(port=5025, host='localhost', debug=True)
